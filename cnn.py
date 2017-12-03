@@ -1,7 +1,7 @@
 import tensorflow as tf
 import numpy as np
-from tensorflow.examples.tutorials.mnist import input_data
-
+import cifar10
+#Test this one instead of the stuff i downloaded, might download every time tho which is time consuming 
 batch_size = 128
 test_size = 256
 
@@ -26,8 +26,12 @@ def model(X, w, w_fc, w_o, p_keep_conv, p_keep_hidden):
     pyx = tf.matmul(l4, w_o)
     return pyx
 
-mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
-trX, trY, teX, teY = mnist.train.images, mnist.train.labels, mnist.test.images, mnist.test.labels
+cifar10.maybe_download_and_extract()
+classNames = cifar10.load_class_names()
+trainingData = cifar10.load_training_data()
+testData = cifar10.load_test_data()
+print(trainingData[0][1][0])
+trX, trY, teX, teY = trainingData, classNames, testData, classNames
 trX = trX.reshape(-1, 28, 28, 1)  # 28x28x1 input img
 teX = teX.reshape(-1, 28, 28, 1)  # 28x28x1 input img
 
