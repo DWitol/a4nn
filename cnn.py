@@ -28,18 +28,25 @@ def model(X, w, w_fc, w_o, p_keep_conv, p_keep_hidden):
 
 cifar10.maybe_download_and_extract()
 classNames = cifar10.load_class_names()
-trainingData = cifar10.load_training_data()
-testData = cifar10.load_test_data()
-print(trainingData[0][1][0])
-trX, trY, teX, teY = trainingData, classNames, testData, classNames
-trX = trX.reshape(-1, 28, 28, 1)  # 28x28x1 input img
-teX = teX.reshape(-1, 28, 28, 1)  # 28x28x1 input img
+#trainingData = cifar10.load_training_data()
+images_train, cls_train, labels_train = cifar10.load_training_data()
+#testData = cifar10.load_test_data()
+images_test, cls_test, labels_test = cifar10.load_test_data()
+#print(trainingData[0][1][0])
+print("Size of:")
+print("- Training-set:\t\t{}".format(len(images_train)))
+print("- Test-set:\t\t{}".format(len(images_test)))
 
-X = tf.placeholder("float", [None, 28, 28, 1])
+#trX, trY, teX, teY = trainingData, classNames, testData, classNames
+trX, trY, teX, teY = images_train, cls_train, images_test, cls_test
+trX = trX.reshape(-1, 32, 32, 1)  # 28x28x1 input img
+teX = teX.reshape(-1, 32, 32, 1)  # 28x28x1 input img
+
+X = tf.placeholder("float", [None, 32, 32, 1])
 Y = tf.placeholder("float", [None, 10])
 
-w = init_weights([3, 3, 1, 32])       # 3x3x1 conv, 32 outputs
-w_fc = init_weights([32 * 14 * 14, 625]) # FC 32 * 14 * 14 inputs, 625 outputs
+w = init_weights([3, 3, 1, 64])       # 3x3x1 conv, 32 outputs
+w_fc = init_weights([64 * 14 * 14, 625]) # FC 32 * 14 * 14 inputs, 625 outputs
 w_o = init_weights([625, 10])         # FC 625 inputs, 10 outputs (labels)
 
 p_keep_conv = tf.placeholder("float")
@@ -55,7 +62,7 @@ with tf.Session() as sess:
     # you need to initialize all variables
     tf.global_variables_initializer().run()
 
-    for i in range(100):
+    for i in range(15):
         training_batch = zip(range(0, len(trX), batch_size),
                              range(batch_size, len(trX)+1, batch_size))
         for start, end in training_batch:
