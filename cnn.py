@@ -41,8 +41,7 @@ print("- Test-set:\t\t{}".format(len(cls_train)))
 trX, trY, teX, teY = images_train, labels_train, images_test, labels_test
 trX = trX.reshape(-1, 32, 32, 1)  # 32x32x1 input img
 teX = teX.reshape(-1, 32, 32, 1)  # 32x32x1 input img
-
-
+writer = tf.summary.FileWriter("results/cifar10/1")
 
 X = tf.placeholder("float", [None, 32, 32, 1])
 Y = tf.placeholder("float", [None, 10])
@@ -63,6 +62,8 @@ predict_op = tf.argmax(py_x, 1)
 with tf.Session() as sess:
     # you need to initialize all variables
     tf.global_variables_initializer().run()
+    writer.add_graph(sess.graph)
+
 
     for i in range(15):
         training_batch = zip(range(0, len(trX), batch_size),
