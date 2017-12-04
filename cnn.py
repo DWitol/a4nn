@@ -39,8 +39,8 @@ print("- Test-set:\t\t{}".format(len(images_test)))
 print("- Test-set:\t\t{}".format(len(cls_train)))
 #trX, trY, teX, teY = trainingData, classNames, testData, classNames
 trX, trY, teX, teY = images_train, labels_train, images_test, labels_test
-trX = trX.reshape(-1, 32, 32, 1)  # 28x28x1 input img
-teX = teX.reshape(-1, 32, 32, 1)  # 28x28x1 input img
+trX = trX.reshape(-1, 32, 32, 1)  # 32x32x1 input img
+teX = teX.reshape(-1, 32, 32, 1)  # 32x32x1 input img
 
 
 
@@ -72,8 +72,7 @@ with tf.Session() as sess:
                 sess.run(train_op, feed_dict={X: trX[start:end], Y: trY[start:end],
                                           p_keep_conv: 0.8, p_keep_hidden: 0.5})
 
-        test_indices = np.arange(len(teX)) # Get A Test Batch
-
+        test_indices = np.arange(10000) # Get A Test Batch
         np.random.shuffle(test_indices)
         test_indices = test_indices[0:test_size]
 
