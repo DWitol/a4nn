@@ -5,8 +5,9 @@ import cifar10
 batch_size = 200
 test_size = 256
 
-def init_weights(shape):
-    return tf.Variable(tf.random_normal(shape, stddev=0.01))
+def init_weights(shape,name):
+    with tf.name_scope(name):
+        return tf.Variable(tf.random_normal(shape, stddev=0.01),name="Weights")
 
 
 def model(X, w, w_fc, w_o, p_keep_conv, p_keep_hidden):
@@ -43,20 +44,25 @@ trX = trX.reshape(-1, 32, 32, 1)  # 32x32x1 input img
 teX = teX.reshape(-1, 32, 32, 1)  # 32x32x1 input img
 writer = tf.summary.FileWriter("results/cifar10/1")
 
-X = tf.placeholder("float", [None, 32, 32, 1])
-Y = tf.placeholder("float", [None, 10])
+X = tf.placeholder("float", [None, 32, 32, 1],name = "x")
+Y = tf.placeholder("float", [None, 10],name ="labels")
 
-w = init_weights([3, 3, 1, 36])       # 3x3x1 conv, 32 outputs
-w_fc = init_weights([36 * 16 * 16, 625]) # FC 32 * 14 * 14 inputs, 625 outputs
-w_o = init_weights([625, 10])         # FC 625 inputs, 10 outputs (labels)
+w = init_weights([3, 3, 1, 36],"w")       # 3x3x1 conv, 32 outputs
+w_fc = init_weights([36 * 16 * 16, 625],"w_fc") # FC 32 * 14 * 14 inputs, 625 outputs
+w_o = init_weights([625, 10],"w_o")         # FC 625 inputs, 10 outputs (labels)
 
 p_keep_conv = tf.placeholder("float")
 p_keep_hidden = tf.placeholder("float")
 py_x = model(X, w, w_fc, w_o, p_keep_conv, p_keep_hidden)
 #InvalidArgumentError (see above for traceback): logits and labels must be same size: logits_size=[128,10] labels_size=[80,10]
-cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=py_x, labels=Y))
-train_op = tf.train.RMSPropOptimizer(0.001, 0.9).minimize(cost)
-predict_op = tf.argmax(py_x, 1)
+with tf.name_scope("cost"):
+    cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=py_x, labels=Y))
+
+with tf.name_scope("train"):
+    train_op = tf.train.RMSPropOptimizer(0.001, 0.9).minimize(cost)
+
+with tf.name_scope("accuracy"):
+    predict_op = tf.argmax(py_x, 1)
 
 # Launch the graph in a session
 with tf.Session() as sess:
