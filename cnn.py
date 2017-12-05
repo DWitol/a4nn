@@ -78,7 +78,6 @@ with tf.Session() as sess:
     merged_summary = tf.summary.merge_all()
     writer = tf.summary.FileWriter("results/cifar10/2")
     writer.add_graph(sess.graph)
-    print("added graph")
 
 
     for i in range(15):
@@ -100,6 +99,7 @@ with tf.Session() as sess:
 
         s = sess.run(merged_summary, feed_dict={X: trX[test_indices],Y: teY[test_indices],
                                   p_keep_conv: 1.0, p_keep_hidden: 1.0})
-        print("not the session run ")
         writer.add_summary(s,i)
+
+        print("completed run ", i )
        
