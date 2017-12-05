@@ -7,12 +7,14 @@ test_size = 256
 
 def init_weights(shape,name):
     with tf.name_scope(name):
-        return tf.Variable(tf.random_normal(shape, stddev=0.01),name="Weights")
-
+        retVal = tf.Variable(tf.random_normal(shape, stddev=0.01),name="W")
+        tf.summary.histogram("weights", retVal)
+        return retVal
 
 def model(X, w, w_fc, w_o, p_keep_conv, p_keep_hidden):
     l1a = tf.nn.relu(tf.nn.conv2d(X, w,                       # l1a shape=(?, 28, 28, 32)
                         strides=[1, 1, 1, 1], padding='SAME'))
+    tf.summary.histogram("activations",l1a)
     l1 = tf.nn.max_pool(l1a, ksize=[1, 2, 2, 1],              # l1 shape=(?, 14, 14, 32)
                         strides=[1, 2, 2, 1], padding='SAME')
     l1 = tf.nn.dropout(l1, p_keep_conv)
@@ -42,7 +44,6 @@ print("- Test-set:\t\t{}".format(len(cls_train)))
 trX, trY, teX, teY = images_train, labels_train, images_test, labels_test
 trX = trX.reshape(-1, 32, 32, 1)  # 32x32x1 input img
 teX = teX.reshape(-1, 32, 32, 1)  # 32x32x1 input img
-writer = tf.summary.FileWriter("results/cifar10/1")
 
 X = tf.placeholder("float", [None, 32, 32, 1],name = "x")
 Y = tf.placeholder("float", [None, 10],name ="labels")
@@ -64,11 +65,20 @@ with tf.name_scope("train"):
 with tf.name_scope("accuracy"):
     predict_op = tf.argmax(py_x, 1)
 
+
+tf.summary.scalar('cost',cost)
+#tf.summary.scalar('accuracy',predict_op)
+tf.summary.image('test input',images_test,3)
+tf.summary.image('train input',images_train,3)
+
 # Launch the graph in a session
 with tf.Session() as sess:
     # you need to initialize all variables
     tf.global_variables_initializer().run()
+    merged_summary = tf.summary.merge_all()
+    writer = tf.summary.FileWriter("results/cifar10/2")
     writer.add_graph(sess.graph)
+    print("added graph")
 
 
     for i in range(15):
@@ -77,13 +87,19 @@ with tf.Session() as sess:
         for start, end in training_batch:
             if end < 50001:
                 sess.run(train_op, feed_dict={X: trX[start:end], Y: trY[start:end],
-                                          p_keep_conv: 0.8, p_keep_hidden: 0.5})
-
+                                      p_keep_conv: 0.8, p_keep_hidden: 0.5})
+                
         test_indices = np.arange(10000) # Get A Test Batch
         np.random.shuffle(test_indices)
         test_indices = test_indices[0:test_size]
-
+                
         print(i, np.mean(np.argmax(teY[test_indices], axis=1) ==
                          sess.run(predict_op, feed_dict={X: teX[test_indices],
                                                          p_keep_conv: 1.0,
                                                          p_keep_hidden: 1.0})))
+
+        s = sess.run(merged_summary, feed_dict={X: trX[test_indices],Y: teY[test_indices],
+                                  p_keep_conv: 1.0, p_keep_hidden: 1.0})
+        print("not the session run ")
+        writer.add_summary(s,i)
+       
