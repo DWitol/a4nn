@@ -3,7 +3,7 @@ import numpy as np
 import cifar10
 #Test this one instead of the stuff i downloaded, might download every time tho which is time consuming 
 batch_size = 500
-test_size = 256
+test_size = 2000
 
 def init_weights(shape,name):
     with tf.name_scope(name):
@@ -50,13 +50,13 @@ print("- Test-set:\t\t{}".format(len(images_test)))
 print("- Test-set:\t\t{}".format(len(cls_train)))
 #trX, trY, teX, teY = trainingData, classNames, testData, classNames
 trX, trY, teX, teY = images_train, labels_train, images_test, labels_test
-trX = trX.reshape(-1, 32, 32, 1)  # 32x32x1 input img
-teX = teX.reshape(-1, 32, 32, 1)  # 32x32x1 input img
+trX = trX.reshape(-1, 32, 32, 3)  # 32x32x1 input img
+teX = teX.reshape(-1, 32, 32, 3)  # 32x32x1 input img
 
-X = tf.placeholder("float", [None, 32, 32, 1],name = "x")
+X = tf.placeholder("float", [None, 32, 32, 3],name = "x")
 Y = tf.placeholder("float", [None, 10],name ="labels")
 
-w = init_weights([3, 3, 1, 64],"w")       # 3x3x1 conv, 32 outputs
+w = init_weights([3, 3, 3, 64],"w")       # 3x3x1 conv, 32 outputs
 w2 = init_weights([3, 3, 64, 128],"w2") 
 w_fc = init_weights([128 * 16 * 16, 625],"w_fc") # FC 32 * 14 * 14 inputs, 625 outputs
 w_o = init_weights([625, 10],"w_o")         # FC 625 inputs, 10 outputs (labels)
