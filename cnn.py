@@ -50,8 +50,8 @@ print("- Test-set:\t\t{}".format(len(images_test)))
 print("- Test-set:\t\t{}".format(len(cls_train)))
 #trX, trY, teX, teY = trainingData, classNames, testData, classNames
 trX, trY, teX, teY = images_train, labels_train, images_test, labels_test
-trX = trX.reshape(-1, 32, 32, 3)  # 32x32x1 input img
-teX = teX.reshape(-1, 32, 32, 3)  # 32x32x1 input img
+trX = trX.reshape(-1, 32, 32, 3)  # 32x32x3 input img
+teX = teX.reshape(-1, 32, 32, 3)  # 32x32x3 input img
 
 X = tf.placeholder("float", [None, 32, 32, 3],name = "x")
 Y = tf.placeholder("float", [None, 10],name ="labels")
@@ -108,7 +108,7 @@ with tf.Session() as sess:
 
         s = sess.run(merged_summary, feed_dict={X: trX[test_indices],Y: teY[test_indices],
                                   p_keep_conv: 1.0, p_keep_hidden: 1.0})
-        #writer.add_summary(s,i)
+        writer.add_summary(s,i)
 
         print("completed run ", i )
        
