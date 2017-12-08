@@ -3,7 +3,7 @@ import numpy as np
 import cifar10
 #Test this one instead of the stuff i downloaded, might download every time tho which is time consuming 
 batch_size = 500
-test_size = 2000
+test_size = 10000
 
 def init_weights(shape,name):
     with tf.name_scope(name):
@@ -15,14 +15,14 @@ def model(X, w,w2, w_fc, w_o, p_keep_conv, p_keep_hidden):
     l1a = tf.nn.relu(tf.nn.conv2d(X, w,                       # l1a shape=(?, 28, 28, 32)
                         strides=[1, 1, 1, 1], padding='SAME'))
     tf.summary.histogram("activations",l1a)
-    l1 = tf.nn.max_pool(l1a, ksize=[1, 2, 2, 1],              # l1 shape=(?, 14, 14, 32)
+    l1 = tf.nn.max_pool(l1a, ksize=[1, 4, 4, 1],              # l1 shape=(?, 14, 14, 32)
                         strides=[1, 2, 2, 1], padding='SAME')
     l1 = tf.nn.dropout(l1, p_keep_conv)
 
     l2a = tf.nn.relu(tf.nn.conv2d(l1, w2,                       # l1a shape=(?, 28, 28, 32)
                         strides=[1, 1, 1, 1], padding='SAME'))
-    l2 = tf.nn.max_pool(l2a, ksize=[1, 2, 2, 1],              # l1 shape=(?, 14, 14, 32)
-                        strides=[1, 1, 1, 1], padding='SAME')
+    l2 = tf.nn.max_pool(l2a, ksize=[1, 4, 4, 1],              # l1 shape=(?, 14, 14, 32)
+                        strides=[1, 2, 2, 1], padding='SAME')
     l2 = tf.nn.dropout(l2, p_keep_conv)
 
 
@@ -58,7 +58,7 @@ Y = tf.placeholder("float", [None, 10],name ="labels")
 
 w = init_weights([3, 3, 3, 64],"w")       # 3x3x1 conv, 32 outputs
 w2 = init_weights([3, 3, 64, 128],"w2") 
-w_fc = init_weights([128 * 16 * 16, 625],"w_fc") # FC 32 * 14 * 14 inputs, 625 outputs
+w_fc = init_weights([128 * 8 * 8, 625],"w_fc") # FC 32 * 14 * 14 inputs, 625 outputs
 w_o = init_weights([625, 10],"w_o")         # FC 625 inputs, 10 outputs (labels)
 
 p_keep_conv = tf.placeholder("float")
